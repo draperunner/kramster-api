@@ -12,6 +12,7 @@
   "author": "Mats Byrkjeland <matsbyr@gmail.com>",
   "license": "Apache 2.0",
   "dependencies": {
+    "apicache": "^1.2.3",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "dotenv": "^6.1.0",

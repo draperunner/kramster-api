@@ -1,7 +1,11 @@
 import express from 'express'
 import controller from './stats.controller'
+import apicache from 'apicache'
 
+const cache = apicache.middleware
 const router = express.Router()
+
+router.use(cache('5 minutes'))
 
 router.get('/', controller.getStatsForAll)
 router.get('/:school', controller.getStatsForSchool)
