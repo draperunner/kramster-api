@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "babel-node src/server.js",
-    "build": "babel src/ --out-dir dist/",
+    "build": "rm -rf dist/ && babel src/ --out-dir dist/",
     "deploy": "./deploy.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,6 +13,7 @@
   "license": "Apache 2.0",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
     "dotenv": "^6.1.0",
     "express": "^4.16.4",
     "mongoose": "^5.3.14",
