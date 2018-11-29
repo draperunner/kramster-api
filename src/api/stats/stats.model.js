@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 // Schema
 const statsSchema = new mongoose.Schema({
@@ -21,5 +21,4 @@ const statsSchema = new mongoose.Schema({
   },
 })
 
-
-module.exports = mongoose.model('Statistics', statsSchema)
+export default mongoose.model('Statistics', statsSchema)

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 // Schema
 const reportSchema = new mongoose.Schema({
@@ -20,4 +20,4 @@ const reportSchema = new mongoose.Schema({
   grade: String,
 })
 
-module.exports = mongoose.model('Report', reportSchema)
+export default mongoose.model('Report', reportSchema)

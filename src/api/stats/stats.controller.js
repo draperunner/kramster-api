@@ -73,7 +73,7 @@ const updateStatsByKey = (key, report) => {
 }
 
 // This is called when a new Report is inserted
-exports.updateStats = (report) => {
+export function updateStats(report) {
   updateStatsByKey({}, report)
   updateStatsByKey({ school: report.exam.school }, report)
   updateStatsByKey({ school: report.exam.school, course: report.exam.course }, report)
@@ -81,14 +81,14 @@ exports.updateStats = (report) => {
 }
 
 // Return aggregated statistics for all reports
-exports.getStatsForAll = (req, res) => {
+export function getStatsForAll(req, res) {
   Stats.findOne({ $or: [{ key: {} }, { key: { $exists: false } }] }, (err, stats) => {
     buildStats(err, stats, res)
   })
 }
 
 // Return aggregated statistics for a given school
-exports.getStatsForSchool = (req, res) => {
+export function getStatsForSchool(req, res) {
   validator.validate(req.params.school, null, null, (isValid, validSchool) => {
     if (!isValid) return errors.noSchoolFound(res, req.params.school)
     Stats.findOne({ 'key.school': validSchool }, (err, stats) => {
@@ -99,7 +99,7 @@ exports.getStatsForSchool = (req, res) => {
 }
 
 // Return aggregated statistics for a given course
-exports.getStatsForCourse = (req, res) => {
+export function getStatsForCourse(req, res) {
   validator.validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
@@ -113,7 +113,7 @@ exports.getStatsForCourse = (req, res) => {
 }
 
 // Return aggregated statistics 'all' mode.
-exports.getStatsForAllMode = (req, res) => {
+export function getStatsForAllMode(req, res) {
   validator.validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
@@ -137,7 +137,7 @@ exports.getStatsForAllMode = (req, res) => {
     })
 }
 
-const getStatsForMode = (mode, req, res) => {
+function getStatsForMode(mode, req, res) {
   validator.validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
@@ -162,13 +162,17 @@ const getStatsForMode = (mode, req, res) => {
 }
 
 // Return aggregated statistics for 'random' mode
-exports.getStatsForRandomMode = (req, res) => getStatsForMode('random', req, res)
+export function getStatsForRandomMode(req, res) {
+  getStatsForMode('random', req, res)
+}
 
 // Return aggregated statistics for 'hardest' mode
-exports.getStatsForHardestMode = (req, res) => getStatsForMode('hardest', req, res)
+export function getStatsForHardestMode(req, res) {
+  getStatsForMode('hardest', req, res)
+}
 
 // Return aggregated statistics for a given exam
-exports.getStatsForExam = (req, res) => {
+export function getStatsForExam(req, res) {
   validator.validate(req.params.school, req.params.course, req.params.exam,
     (isValid, validSchool, validCourse, validExam) => {
       if (!isValid) {

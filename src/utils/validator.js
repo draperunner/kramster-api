@@ -126,7 +126,7 @@ const validateSortParameter = (validParams, sortParameter, callback) => {
   callback(isValid, sortObject)
 }
 
-exports.validate = (school, course, exam, callback) => {
+export function validate(school, course, exam, callback) {
   if (school && course && exam) {
     validateExam(school, course, exam, callback)
   }
@@ -138,19 +138,21 @@ exports.validate = (school, course, exam, callback) => {
   }
 }
 
-exports.validateExamsSortParameter = (sortParameter, callback) => {
+export function validateExamsSortParameter(sortParameter, callback) {
   const valids = ['created', 'school', 'course', 'name']
   validateSortParameter(valids, sortParameter, callback)
 }
 
-exports.validateReportsSortParameter = (sortParameter, callback) => {
+export function validateReportsSortParameter(sortParameter, callback) {
   const val = ['created', 'school', 'course', 'name', 'score', 'numQuestions', 'percentage', 'grade']
   validateSortParameter(val, sortParameter, callback)
 }
 
-exports.isValidDate = dateParameter => dateParameter && !isNaN(Date.parse(dateParameter))
+export function isValidDate(dateParameter) {
+  return dateParameter && !isNaN(Date.parse(dateParameter))
+}
 
-exports.validateRangeBasedParameter = (paramName, param, callback) => {
+export function validateRangeBasedParameter(paramName, param, callback) {
   const objectToReturn = {}
 
   // Check for multiple values (an interval)

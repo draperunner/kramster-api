@@ -4,7 +4,7 @@ import helpers from './../../utils/helpers'
 import errors from './../../utils/errors'
 import Exam from './../exams/exam.model'
 
-const getRandomQuestionsFromExams = (exams, numberOfQuestions) => {
+function getRandomQuestionsFromExams(exams, numberOfQuestions) {
   // Merge all questions from resulting exams to one array
   let questions = []
   for (let i = 0; i < exams.length; i++) {
@@ -30,7 +30,7 @@ const getRandomQuestionsFromExams = (exams, numberOfQuestions) => {
  * @param  {Number} numberOfQuestions   Maximum number of questions to fetch.
  * @return {Object[]}                   The hardest questions from given exam
  */
-const getHardestQuestionsFromExams = (exams, numberOfQuestions) => {
+function getHardestQuestionsFromExams(exams, numberOfQuestions) {
   // Merge all questions from resulting exams to one array
   let questions = []
   for (let i = 0; i < exams.length; i++) {
@@ -63,7 +63,7 @@ const getHardestQuestionsFromExams = (exams, numberOfQuestions) => {
  * @param {Object} reqQuery - The query parameters from the HTTP request.
  * @param {Object} res - The Express response object.
  */
-const handleExamsQuery = (queryObject, reqQuery, res) => {
+function handleExamsQuery(queryObject, reqQuery, res) {
   // Handle mode parameter
   if (reqQuery.mode) {
     const lower = reqQuery.mode.toLowerCase()
@@ -119,14 +119,14 @@ const handleExamsQuery = (queryObject, reqQuery, res) => {
 /**
  * Returns all exams.
  */
-exports.getAllExams = (req, res) => {
+export function getAllExams(req, res) {
   handleExamsQuery({}, req.query, res)
 }
 
 /**
  * Returns all exams for the given school.
  */
-exports.getExamsBySchool = (req, res) => {
+export function getExamsBySchool(req, res) {
   validator.validate(req.params.school, null, null, (isValid, validSchool) => {
     if (!isValid) return errors.noSchoolFound(res, req.params.school)
     return handleExamsQuery({ school: validSchool }, req.query, res)
@@ -136,7 +136,7 @@ exports.getExamsBySchool = (req, res) => {
 /**
  * Returns all exams for the given school and course.
  */
-exports.getExamsByCourse = (req, res) => {
+export function getExamsByCourse(req, res) {
   validator.validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
@@ -147,7 +147,7 @@ exports.getExamsByCourse = (req, res) => {
 /**
  * Returns specific exam for the given school and course and with given name.
  */
-exports.getExam = (req, res) => {
+export function getExam(req, res) {
   validator.validate(req.params.school, req.params.course, req.params.exam,
     (isValid, validSchool, validCourse, validExam) => {
       if (!isValid) {

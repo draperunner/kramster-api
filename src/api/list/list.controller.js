@@ -31,7 +31,7 @@ const getSortFunction = (sortParam) => {
 }
 
 // Return list of all distinct schools
-exports.getSchools = (req, res) => {
+export function getSchools(req, res) {
   Exam.distinct('school', (err, names) => {
     if (err) {
       res.status(500).send('Something went wrong.')
@@ -45,7 +45,7 @@ exports.getSchools = (req, res) => {
 }
 
 // Return list of all distinct courses
-exports.getCourses = (req, res) => {
+export function getCourses(req, res) {
   Exam.distinct('course', (err, names) => {
     if (err) {
       res.status(500).send('Something went wrong.')
@@ -59,7 +59,7 @@ exports.getCourses = (req, res) => {
 }
 
 // Return list of all courses at a given school
-exports.getCoursesAtSchool = (req, res) => {
+export function getCoursesAtSchool(req, res) {
   validator.validate(req.params.school, null, null, (isValid, validSchool) => {
     if (!isValid) {
       errors.noSchoolFound(res, req.query.school)
@@ -78,7 +78,7 @@ exports.getCoursesAtSchool = (req, res) => {
 }
 
 // Return list of all distinct exams
-exports.getExams = (req, res) => {
+export function getExams(req, res) {
   Exam.distinct('name', (err, names) => {
     if (err) {
       res.status(500).send('Something went wrong.')
@@ -91,7 +91,7 @@ exports.getExams = (req, res) => {
 }
 
 // Return list of all exams at a given school
-exports.getExamsAtSchool = (req, res) => {
+export function getExamsAtSchool(req, res) {
   validator.validate(req.params.school, null, null, (isValid, validSchool) => {
     if (!isValid) {
       errors.noSchoolFound(res, req.params.school)
@@ -107,7 +107,7 @@ exports.getExamsAtSchool = (req, res) => {
 }
 
 // Return list of all exams at a given school and course
-exports.getExamsForCourseAtSchool = (req, res) => {
+export function getExamsForCourseAtSchool (req, res) {
   validator.validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) {

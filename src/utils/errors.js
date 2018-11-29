@@ -25,4 +25,4 @@ const errorMessages = {
   },
 }
 
-module.exports = errorMessages
+export default errorMessages

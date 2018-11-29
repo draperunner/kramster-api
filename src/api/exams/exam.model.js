@@ -1,7 +1,5 @@
-const mongoose = require('mongoose')
-require('../questions/question.model')
+import mongoose from 'mongoose'
 
-// Schema
 const examSchema = new mongoose.Schema({
   school: String,
   course: String,
@@ -10,4 +8,4 @@ const examSchema = new mongoose.Schema({
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
 })
 
-module.exports = mongoose.model('Exam', examSchema)
+export default mongoose.model('Exam', examSchema)

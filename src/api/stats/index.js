@@ -1,6 +1,6 @@
 import express from 'express'
-import controller from './stats.controller'
 import apicache from 'apicache'
+import * as controller from './stats.controller'
 
 const cache = apicache.middleware
 const router = express.Router()
@@ -15,4 +15,4 @@ router.get('/:school/:course/random', controller.getStatsForRandomMode)
 router.get('/:school/:course/hardest', controller.getStatsForHardestMode)
 router.get('/:school/:course/:exam', controller.getStatsForExam)
 
-module.exports = router
+export default router

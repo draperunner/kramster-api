@@ -81,12 +81,12 @@ const handleReportsQuery = (queryObject, reqQuery, res) => {
 }
 
 // Return all reports
-exports.getAllReports = (req, res) => {
+export function getAllReports(req, res) {
   handleReportsQuery({}, req.query, res)
 }
 
 // Return reports for a given school
-exports.getReportsForSchool = (req, res) => {
+export function getReportsForSchool(req, res) {
   validator.validate(req.params.school, null, null, (isValid, validSchool) => {
     if (!isValid) return errors.noSchoolFound(res, req.params.school)
     return handleReportsQuery({ 'exam.school': validSchool }, req.query, res)
@@ -94,7 +94,7 @@ exports.getReportsForSchool = (req, res) => {
 }
 
 // Return reports for a given course
-exports.getReportsForCourse = (req, res) => {
+export function getReportsForCourse(req, res) {
   validator.validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
@@ -107,7 +107,7 @@ exports.getReportsForCourse = (req, res) => {
 }
 
 // Return reports for a given exam
-exports.getReportsForExam = (req, res) => {
+export function getReportsForExam(req, res) {
   validator.validate(req.params.school, req.params.course, req.params.exam,
     (isValid, validSchool, validCourse, validExam) => {
       if (!isValid) {
@@ -124,7 +124,7 @@ exports.getReportsForExam = (req, res) => {
 }
 
 // Add a new report
-exports.addReport = (req, res) => {
+export function addReport(req, res) {
   validator.validate(req.body.exam.school, req.body.exam.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) {

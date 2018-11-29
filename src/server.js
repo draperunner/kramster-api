@@ -1,9 +1,16 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const bodyParser = require('body-parser')
-const path = require('path')
-const cors = require('cors')
-require('dotenv').config()
+import express from 'express'
+import mongoose from 'mongoose'
+import bodyParser from 'body-parser'
+import path from 'path'
+import cors from 'cors'
+import dotenv from 'dotenv'
+
+import exams from './api/exams'
+import reports from './api/reports'
+import stats from './api/stats'
+import list from './api/list'
+
+dotenv.config()
 
 const app = express()
 
@@ -25,10 +32,10 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 // Routes
-app.use('/exams', require('./api/exams'))
-app.use('/reports', require('./api/reports'))
-app.use('/stats', require('./api/stats'))
-app.use('/list', require('./api/list'))
+app.use('/exams', exams)
+app.use('/reports', reports)
+app.use('/stats', stats)
+app.use('/list', list)
 
 // Start server
 const port = process.env.PORT || 8000

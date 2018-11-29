@@ -1,5 +1,5 @@
 import express from 'express'
-import controller from './reports.controller'
+import * as controller from './reports.controller'
 
 const router = express.Router()
 
@@ -9,4 +9,4 @@ router.get('/:school/:course', controller.getReportsForCourse)
 router.get('/:school/:course/:exam', controller.getReportsForExam)
 router.post('/add', controller.addReport)
 
-module.exports = router
+export default router

@@ -1,6 +1,7 @@
 import express from 'express'
-import controller from './list.controller'
 import apicache from 'apicache'
+
+import * as controller from './list.controller'
 
 const cache = apicache.middleware
 const router = express.Router()
@@ -14,4 +15,4 @@ router.get('/exams', controller.getExams)
 router.get('/exams/:school', controller.getExamsAtSchool)
 router.get('/exams/:school/:course', controller.getExamsForCourseAtSchool)
 
-module.exports = router
+export default router
