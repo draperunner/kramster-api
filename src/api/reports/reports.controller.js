@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import validator from './../../utils/validator'
+import { validate, validateRangeBasedParameter, validateReportsSortParameter } from './../../utils/validator'
 import errors from './../../utils/errors'
 import Question from '../questions/question.model'
 import Report from './report.model'
@@ -8,7 +8,7 @@ import * as statsCtrl from './../stats/stats.controller'
 const handleRangeBasedParameter = (res, queryObject, paramName, rawParam) => {
   if (typeof rawParam === 'undefined') return true
   let success = false
-  validator.validateRangeBasedParameter(paramName, rawParam, (isValid, validParamObject) => {
+  validateRangeBasedParameter(paramName, rawParam, (isValid, validParamObject) => {
     if (!isValid) return errors.invalidParam(res, paramName, rawParam)
     queryObject[paramName] = validParamObject
     success = true
@@ -60,7 +60,7 @@ const handleReportsQuery = (queryObject, reqQuery, res) => {
   let query = Report.find(queryObject)
 
   // Sort
-  validator.validateReportsSortParameter(reqQuery.sort, (isValid, sortObject) => {
+  validateReportsSortParameter(reqQuery.sort, (isValid, sortObject) => {
     if (isValid) query = query.sort(sortObject)
   })
 
@@ -87,7 +87,7 @@ export function getAllReports(req, res) {
 
 // Return reports for a given school
 export function getReportsForSchool(req, res) {
-  validator.validate(req.params.school, null, null, (isValid, validSchool) => {
+  validate(req.params.school, null, null, (isValid, validSchool) => {
     if (!isValid) return errors.noSchoolFound(res, req.params.school)
     return handleReportsQuery({ 'exam.school': validSchool }, req.query, res)
   })
@@ -95,7 +95,7 @@ export function getReportsForSchool(req, res) {
 
 // Return reports for a given course
 export function getReportsForCourse(req, res) {
-  validator.validate(req.params.school, req.params.course, null,
+  validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
       return handleReportsQuery(
@@ -108,7 +108,7 @@ export function getReportsForCourse(req, res) {
 
 // Return reports for a given exam
 export function getReportsForExam(req, res) {
-  validator.validate(req.params.school, req.params.course, req.params.exam,
+  validate(req.params.school, req.params.course, req.params.exam,
     (isValid, validSchool, validCourse, validExam) => {
       if (!isValid) {
         return errors.noExamFound(res, req.params.school, req.params.course, req.params.exam)
@@ -125,7 +125,7 @@ export function getReportsForExam(req, res) {
 
 // Add a new report
 export function addReport(req, res) {
-  validator.validate(req.body.exam.school, req.body.exam.course, null,
+  validate(req.body.exam.school, req.body.exam.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) {
         return errors.noExamFound(res, req.params.school, req.params.course, req.params.exam)

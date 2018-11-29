@@ -1,4 +1,4 @@
-import validator from './../../utils/validator'
+import { validate } from './../../utils/validator'
 import errors from './../../utils/errors'
 import Stats from './stats.model'
 
@@ -89,7 +89,7 @@ export function getStatsForAll(req, res) {
 
 // Return aggregated statistics for a given school
 export function getStatsForSchool(req, res) {
-  validator.validate(req.params.school, null, null, (isValid, validSchool) => {
+  validate(req.params.school, null, null, (isValid, validSchool) => {
     if (!isValid) return errors.noSchoolFound(res, req.params.school)
     Stats.findOne({ 'key.school': validSchool }, (err, stats) => {
       buildStats(err, stats, res)
@@ -100,7 +100,7 @@ export function getStatsForSchool(req, res) {
 
 // Return aggregated statistics for a given course
 export function getStatsForCourse(req, res) {
-  validator.validate(req.params.school, req.params.course, null,
+  validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
       Stats.findOne({ 'key.school': validSchool, 'key.course': validCourse },
@@ -114,7 +114,7 @@ export function getStatsForCourse(req, res) {
 
 // Return aggregated statistics 'all' mode.
 export function getStatsForAllMode(req, res) {
-  validator.validate(req.params.school, req.params.course, null,
+  validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
       if (typeof req.query.numQuestions !== 'undefined' && isNaN(req.query.numQuestions)) {
@@ -138,7 +138,7 @@ export function getStatsForAllMode(req, res) {
 }
 
 function getStatsForMode(mode, req, res) {
-  validator.validate(req.params.school, req.params.course, null,
+  validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
       if (typeof req.query.numQuestions !== 'undefined' && isNaN(req.query.numQuestions)) {
@@ -173,7 +173,7 @@ export function getStatsForHardestMode(req, res) {
 
 // Return aggregated statistics for a given exam
 export function getStatsForExam(req, res) {
-  validator.validate(req.params.school, req.params.course, req.params.exam,
+  validate(req.params.school, req.params.course, req.params.exam,
     (isValid, validSchool, validCourse, validExam) => {
       if (!isValid) {
         return errors.noExamFound(res, req.params.school, req.params.course, req.params.exam)

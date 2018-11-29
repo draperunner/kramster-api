@@ -1,4 +1,4 @@
-import validator from './../../utils/validator'
+import { validate } from './../../utils/validator'
 import errors from './../../utils/errors'
 import helpers from './../../utils/helpers'
 import Exam from './../exams/exam.model'
@@ -60,7 +60,7 @@ export function getCourses(req, res) {
 
 // Return list of all courses at a given school
 export function getCoursesAtSchool(req, res) {
-  validator.validate(req.params.school, null, null, (isValid, validSchool) => {
+  validate(req.params.school, null, null, (isValid, validSchool) => {
     if (!isValid) {
       errors.noSchoolFound(res, req.query.school)
       return
@@ -92,7 +92,7 @@ export function getExams(req, res) {
 
 // Return list of all exams at a given school
 export function getExamsAtSchool(req, res) {
-  validator.validate(req.params.school, null, null, (isValid, validSchool) => {
+  validate(req.params.school, null, null, (isValid, validSchool) => {
     if (!isValid) {
       errors.noSchoolFound(res, req.params.school)
       return
@@ -108,7 +108,7 @@ export function getExamsAtSchool(req, res) {
 
 // Return list of all exams at a given school and course
 export function getExamsForCourseAtSchool (req, res) {
-  validator.validate(req.params.school, req.params.course, null,
+  validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) {
         errors.noCourseFound(res, req.params.school, req.params.course)

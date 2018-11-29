@@ -1,5 +1,5 @@
 import wilson from 'wilson-score'
-import validator from './../../utils/validator'
+import { validate, validateExamsSortParameter } from './../../utils/validator'
 import helpers from './../../utils/helpers'
 import errors from './../../utils/errors'
 import Exam from './../exams/exam.model'
@@ -79,7 +79,7 @@ function handleExamsQuery(queryObject, reqQuery, res) {
   let query = Exam.find(queryObject)
 
   // Sort
-  validator.validateExamsSortParameter(reqQuery.sort, (isValid, sortObject) => {
+  validateExamsSortParameter(reqQuery.sort, (isValid, sortObject) => {
     if (isValid) query = query.sort(sortObject)
   })
 
@@ -127,7 +127,7 @@ export function getAllExams(req, res) {
  * Returns all exams for the given school.
  */
 export function getExamsBySchool(req, res) {
-  validator.validate(req.params.school, null, null, (isValid, validSchool) => {
+  validate(req.params.school, null, null, (isValid, validSchool) => {
     if (!isValid) return errors.noSchoolFound(res, req.params.school)
     return handleExamsQuery({ school: validSchool }, req.query, res)
   })
@@ -137,7 +137,7 @@ export function getExamsBySchool(req, res) {
  * Returns all exams for the given school and course.
  */
 export function getExamsByCourse(req, res) {
-  validator.validate(req.params.school, req.params.course, null,
+  validate(req.params.school, req.params.course, null,
     (isValid, validSchool, validCourse) => {
       if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
       return handleExamsQuery({ school: validSchool, course: validCourse }, req.query, res)
@@ -148,7 +148,7 @@ export function getExamsByCourse(req, res) {
  * Returns specific exam for the given school and course and with given name.
  */
 export function getExam(req, res) {
-  validator.validate(req.params.school, req.params.course, req.params.exam,
+  validate(req.params.school, req.params.course, req.params.exam,
     (isValid, validSchool, validCourse, validExam) => {
       if (!isValid) {
         return errors.noExamFound(res, req.params.school, req.params.course, req.params.exam)
