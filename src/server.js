@@ -19,7 +19,12 @@ mongoose.connect(process.env.DB_URL, { useNewUrlParser: true })
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (['https://kramster.it', 'https://kramsterapp.firebaseapp.com'].includes(origin)) {
+    if ([
+      'https://kramster.it',
+      'https://kramsterapp.firebaseapp.com',
+      'https://staging.kramster.it',
+      'https://kramster-staging.firebaseapp.com',
+    ].includes(origin)) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
