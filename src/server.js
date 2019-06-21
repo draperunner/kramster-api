@@ -1,7 +1,6 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
-import path from 'path'
 import cors from 'cors'
 import dotenv from 'dotenv'
 

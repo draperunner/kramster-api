@@ -1,109 +1,85 @@
-/**
- * @file Provides validation methods
- * @author Mats Byrkjeland
- */
-
 import Exam from './../api/exams/exam.model'
 import helpers from './helpers'
 
 const getCourseCode = courseName => courseName.split(' ')[0].toUpperCase()
 
-const validateSchool = (school, callback) => {
+async function validateSchool(school) {
   const lower = school.toLowerCase()
-  Exam.distinct('school', (err, schoolNames) => {
-    // Check if param is valid full name
+  try {
+    const schoolNames = await Exam.distinct('school')
     const validFull = schoolNames.some(element => element.toLowerCase() === lower)
 
     if (validFull) {
-      callback(true, school)
-      return
+      return [true, school]
     }
 
     // Check if param is valid abbreviation/code
     for (let i = 0; i < schoolNames.length; i++) {
       const abb = helpers.getSchoolAbbreviationFromFullName(schoolNames[i])
       if (abb && abb.toLowerCase() === lower) {
-        callback(true, schoolNames[i])
-        return
+        return [true, schoolNames[i]]
+      }
+    }
+    return [false]
+  } catch (error) {
+    return [false]
+  }
+}
+
+async function validateCourse(school, course) {
+  const [isValid, validSchool] = await validateSchool(school)
+
+  if (!isValid) return false
+
+  const lower = course.toLowerCase()
+
+  try {
+    const courseNames = await Exam.find({ school: validSchool }).distinct('course')
+
+    // Check if course param is valid full name
+    const validFull = courseNames.some(element => element.toLowerCase() === lower)
+
+    if (validFull) {
+      return [true, validSchool, course]
+    }
+
+    // Check if param is valid abbreviation/code
+    for (let i = 0; i < courseNames.length; i++) {
+      const code = getCourseCode(courseNames[i])
+      if (code && code.toLowerCase() === lower) {
+        return [true, validSchool, courseNames[i]]
       }
     }
 
-    callback(false)
-  })
+    return [false]
+  } catch (error) {
+    return [false]
+  }
 }
 
-const validateCourse = (school, course, callback) => {
-  validateSchool(school, (isValid, validSchool) => {
-    // Invalid school
-    if (!isValid) {
-      callback(false)
-      return
+async function validateExam(school, course, exam) {
+  const [isValid, validSchool, validCourse] = await validateCourse(school, course)
+
+  if (!isValid)  return [false]
+
+  const lower = exam.toLowerCase()
+  try {
+    const examNames = await Exam.find({ school: validSchool, course: validCourse }).distinct('name')
+    const validFull = examNames.some(element => element.toLowerCase() === lower)
+
+    if (validFull) {
+      return [true, validSchool, validCourse, exam]
     }
 
-    const lower = course.toLowerCase()
-    Exam.find({ school: validSchool }).distinct('course', (err, courseNames) => {
-      // Server error
-      if (err) {
-        callback(false)
-        return
-      }
-
-      // Check if course param is valid full name
-      const validFull = courseNames.some(element => element.toLowerCase() === lower)
-
-      if (validFull) {
-        callback(true, validSchool, course)
-        return
-      }
-
-      // Check if param is valid abbreviation/code
-      for (let i = 0; i < courseNames.length; i++) {
-        const code = getCourseCode(courseNames[i])
-        if (code && code.toLowerCase() === lower) {
-          callback(true, validSchool, courseNames[i])
-          return
-        }
-      }
-
-      callback(false)
-    })
-  })
+    return [false]
+  } catch (error) {
+    return [false]
+  }
 }
 
-const validateExam = (school, course, exam, callback) => {
-  validateCourse(school, course, (isValid, validSchool, validCourse) => {
-    // Invalid school or course
-    if (!isValid) {
-      callback(false)
-      return
-    }
-
-    const lower = exam.toLowerCase()
-    Exam.find({ school: validSchool, course: validCourse }).distinct('name',
-      (err, examNames) => {
-        // Server error
-        if (err) {
-          callback(false)
-          return
-        }
-
-        // Check if exam param is valid full name
-        const validFull = examNames.some(element => element.toLowerCase() === lower)
-
-        if (validFull) {
-          callback(true, validSchool, validCourse, exam)
-          return
-        }
-
-        callback(false)
-      })
-  })
-}
-
-const validateSortParameter = (validParams, sortParameter, callback) => {
+function validateSortParameter(validParams, sortParameter) {
   if (!sortParameter) {
-    callback(true, { _id: 1 })
-    return
+    return [true, { _id: 1 }]
   }
 
   const sortObject = {}
@@ -123,36 +99,36 @@ const validateSortParameter = (validParams, sortParameter, callback) => {
     }
   }
 
-  callback(isValid, sortObject)
+  return [isValid, sortObject]
 }
 
-export function validate(school, course, exam, callback) {
+export function validate(school, course, exam) {
   if (school && course && exam) {
-    validateExam(school, course, exam, callback)
+    return validateExam(school, course, exam)
   }
-  else if (school && course) {
-    validateCourse(school, course, callback)
+  if (school && course) {
+    return validateCourse(school, course)
   }
-  else if (school) {
-    validateSchool(school, callback)
+  if (school) {
+    return validateSchool(school)
   }
 }
 
-export function validateExamsSortParameter(sortParameter, callback) {
+export function validateExamsSortParameter(sortParameter) {
   const valids = ['created', 'school', 'course', 'name']
-  validateSortParameter(valids, sortParameter, callback)
+  return validateSortParameter(valids, sortParameter)
 }
 
-export function validateReportsSortParameter(sortParameter, callback) {
+export function validateReportsSortParameter(sortParameter) {
   const val = ['created', 'school', 'course', 'name', 'score', 'numQuestions', 'percentage', 'grade']
-  validateSortParameter(val, sortParameter, callback)
+  return validateSortParameter(val, sortParameter)
 }
 
 export function isValidDate(dateParameter) {
   return dateParameter && !isNaN(Date.parse(dateParameter))
 }
 
-export function validateRangeBasedParameter(paramName, param, callback) {
+export function validateRangeBasedParameter(paramName, param) {
   const objectToReturn = {}
 
   // Check for multiple values (an interval)
@@ -167,16 +143,14 @@ export function validateRangeBasedParameter(paramName, param, callback) {
     const isInvalidNumber = paramName !== 'grade' && isNaN(paramValue)
 
     if (isInvalidGrade || isInvalidNumber) {
-      callback(false)
-      return
+      return [false]
     }
 
     if (paramName === 'grade') paramValue = paramValue.toUpperCase()
 
     // If an exact value is given (no lead operator), only this is considered.
     if (operator === '=') {
-      callback(true, paramValue)
-      return
+      return [true, paramValue]
     }
 
     // If same operator appears multiple times, only first is considered.
@@ -184,5 +158,5 @@ export function validateRangeBasedParameter(paramName, param, callback) {
     else if (operator === '>' && !objectToReturn.$gt) objectToReturn.$gt = paramValue
   }
 
-  callback(true, objectToReturn)
+  return [true, objectToReturn]
 }

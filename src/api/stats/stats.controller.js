@@ -88,77 +88,70 @@ export function getStatsForAll(req, res) {
 }
 
 // Return aggregated statistics for a given school
-export function getStatsForSchool(req, res) {
-  validate(req.params.school, null, null, (isValid, validSchool) => {
-    if (!isValid) return errors.noSchoolFound(res, req.params.school)
-    Stats.findOne({ 'key.school': validSchool }, (err, stats) => {
-      buildStats(err, stats, res)
-    })
-    return null
+export async function getStatsForSchool(req, res) {
+  const [isValid, validSchool] = await validate(req.params.school)
+  if (!isValid) return errors.noSchoolFound(res, req.params.school)
+  Stats.findOne({ 'key.school': validSchool }, (err, stats) => {
+    buildStats(err, stats, res)
   })
+  return null
 }
 
 // Return aggregated statistics for a given course
-export function getStatsForCourse(req, res) {
-  validate(req.params.school, req.params.course, null,
-    (isValid, validSchool, validCourse) => {
-      if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
-      Stats.findOne({ 'key.school': validSchool, 'key.course': validCourse },
-        (err, stats) => {
-          buildStats(err, stats, res)
-        },
-      )
-      return null
-    })
+export async function getStatsForCourse(req, res) {
+  const [isValid, validSchool, validCourse] = await validate(req.params.school, req.params.course)
+  if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
+  Stats.findOne({ 'key.school': validSchool, 'key.course': validCourse },
+    (err, stats) => {
+      buildStats(err, stats, res)
+    },
+  )
+  return null
 }
 
 // Return aggregated statistics 'all' mode.
-export function getStatsForAllMode(req, res) {
-  validate(req.params.school, req.params.course, null,
-    (isValid, validSchool, validCourse) => {
-      if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
-      if (typeof req.query.numQuestions !== 'undefined' && isNaN(req.query.numQuestions)) {
-        return errors.invalidParam(res, 'numQuestions', req.query.numQuestions)
-      }
+export async function getStatsForAllMode(req, res) {
+  const [isValid, validSchool, validCourse] = await validate(req.params.school, req.params.course)
+  if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
+  if (typeof req.query.numQuestions !== 'undefined' && isNaN(req.query.numQuestions)) {
+    return errors.invalidParam(res, 'numQuestions', req.query.numQuestions)
+  }
 
-      const query = {
-        'key.school': validSchool,
-        'key.course': validCourse,
-        'key.name': 'all',
-      }
-      if (req.query.numQuestions) query.numQuestions = req.query.numQuestions
+  const query = {
+    'key.school': validSchool,
+    'key.course': validCourse,
+    'key.name': 'all',
+  }
+  if (req.query.numQuestions) query.numQuestions = req.query.numQuestions
 
-      Stats.findOne(query,
-        (err, reports) => {
-          buildStats(err, reports, res)
-        },
-      )
-      return null
-    })
+  Stats.findOne(query,
+    (err, reports) => {
+      buildStats(err, reports, res)
+    },
+  )
+  return null
 }
 
-function getStatsForMode(mode, req, res) {
-  validate(req.params.school, req.params.course, null,
-    (isValid, validSchool, validCourse) => {
-      if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
-      if (typeof req.query.numQuestions !== 'undefined' && isNaN(req.query.numQuestions)) {
-        return errors.invalidParam(res, 'numQuestions', req.query.numQuestions)
-      }
+async function getStatsForMode(mode, req, res) {
+  const [isValid, validSchool, validCourse] = await validate(req.params.school, req.params.course)
+  if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
+  if (typeof req.query.numQuestions !== 'undefined' && isNaN(req.query.numQuestions)) {
+    return errors.invalidParam(res, 'numQuestions', req.query.numQuestions)
+  }
 
-      const query = {
-        'key.school': validSchool,
-        'key.course': validCourse,
-        'key.name': mode,
-      }
+  const query = {
+    'key.school': validSchool,
+    'key.course': validCourse,
+    'key.name': mode,
+  }
 
-      if (req.query.numQuestions) query['key.numQuestions'] = parseInt(req.query.numQuestions, 10)
-      Stats.findOne(query,
-        (err, stats) => {
-          buildStats(err, stats, res)
-        },
-      )
-      return null
-    })
+  if (req.query.numQuestions) query['key.numQuestions'] = parseInt(req.query.numQuestions, 10)
+  Stats.findOne(query,
+    (err, stats) => {
+      buildStats(err, stats, res)
+    },
+  )
+  return null
 }
 
 // Return aggregated statistics for 'random' mode
@@ -172,23 +165,21 @@ export function getStatsForHardestMode(req, res) {
 }
 
 // Return aggregated statistics for a given exam
-export function getStatsForExam(req, res) {
-  validate(req.params.school, req.params.course, req.params.exam,
-    (isValid, validSchool, validCourse, validExam) => {
-      if (!isValid) {
-        return errors.noExamFound(res, req.params.school, req.params.course, req.params.exam)
-      }
+export async function getStatsForExam(req, res) {
+  const [isValid, validSchool, validCourse, validExam] = await validate(req.params.school, req.params.course, req.params.exam)
+  if (!isValid) {
+    return errors.noExamFound(res, req.params.school, req.params.course, req.params.exam)
+  }
 
-      Stats.findOne(
-        {
-          'key.school': validSchool,
-          'key.course': validCourse,
-          'key.name': validExam,
-        },
-        (err, stats) => {
-          buildStats(err, stats, res)
-        },
-      )
-      return null
-    })
+  Stats.findOne(
+    {
+      'key.school': validSchool,
+      'key.course': validCourse,
+      'key.name': validExam,
+    },
+    (err, stats) => {
+      buildStats(err, stats, res)
+    },
+  )
+  return null
 }

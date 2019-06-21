@@ -63,7 +63,7 @@ function getHardestQuestionsFromExams(exams, numberOfQuestions) {
  * @param {Object} reqQuery - The query parameters from the HTTP request.
  * @param {Object} res - The Express response object.
  */
-function handleExamsQuery(queryObject, reqQuery, res) {
+async function handleExamsQuery(queryObject, reqQuery, res) {
   // Handle mode parameter
   if (reqQuery.mode) {
     const lower = reqQuery.mode.toLowerCase()
@@ -79,9 +79,8 @@ function handleExamsQuery(queryObject, reqQuery, res) {
   let query = Exam.find(queryObject)
 
   // Sort
-  validateExamsSortParameter(reqQuery.sort, (isValid, sortObject) => {
-    if (isValid) query = query.sort(sortObject)
-  })
+  const [isValid, sortObject] = await validateExamsSortParameter(reqQuery.sort)
+  if (isValid) query = query.sort(sortObject)
 
   // Limit exams (if not random=true)
   if (reqQuery.random !== 'true' && reqQuery.hardest !== 'true' && reqQuery.limit && Number(reqQuery.limit) > 0) {
@@ -126,40 +125,35 @@ export function getAllExams(req, res) {
 /**
  * Returns all exams for the given school.
  */
-export function getExamsBySchool(req, res) {
-  validate(req.params.school, null, null, (isValid, validSchool) => {
-    if (!isValid) return errors.noSchoolFound(res, req.params.school)
-    return handleExamsQuery({ school: validSchool }, req.query, res)
-  })
+export async function getExamsBySchool(req, res) {
+  const [isValid, validSchool] = await validate(req.params.school)
+  if (!isValid) return errors.noSchoolFound(res, req.params.school)
+  return handleExamsQuery({ school: validSchool }, req.query, res)
 }
 
 /**
  * Returns all exams for the given school and course.
  */
-export function getExamsByCourse(req, res) {
-  validate(req.params.school, req.params.course, null,
-    (isValid, validSchool, validCourse) => {
-      if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
-      return handleExamsQuery({ school: validSchool, course: validCourse }, req.query, res)
-    })
+export async function getExamsByCourse(req, res) {
+  const [isValid, validSchool, validCourse] = await validate(req.params.school, req.params.course)
+  if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
+  return handleExamsQuery({ school: validSchool, course: validCourse }, req.query, res)
 }
 
 /**
  * Returns specific exam for the given school and course and with given name.
  */
-export function getExam(req, res) {
-  validate(req.params.school, req.params.course, req.params.exam,
-    (isValid, validSchool, validCourse, validExam) => {
-      if (!isValid) {
-        return errors.noExamFound(res, req.params.school, req.params.course, req.params.exam)
-      }
+export async function getExam(req, res) {
+  const { school, course, exam } = req.params
+  const [isValid, validSchool, validCourse, validExam] = await validate(school, course, exam)
 
-      return handleExamsQuery(
-        {
-          school: validSchool,
-          course: validCourse,
-          name: validExam,
-        },
-        req.query, res)
-    })
+  if (!isValid) {
+    return errors.noExamFound(res, school, course, exam)
+  }
+
+  return handleExamsQuery({
+      school: validSchool,
+      course: validCourse,
+      name: validExam,
+    }, req.query, res)
 }

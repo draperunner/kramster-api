@@ -59,66 +59,60 @@ export function getCourses(req, res) {
 }
 
 // Return list of all courses at a given school
-export function getCoursesAtSchool(req, res) {
-  validate(req.params.school, null, null, (isValid, validSchool) => {
-    if (!isValid) {
-      errors.noSchoolFound(res, req.query.school)
-      return
-    }
-    Exam.find({ school: validSchool }).distinct('course', (err, names) => {
-      if (err) {
-        errors.somethingWentWrong(res)
-        return
-      }
-      const resultNames = req.query.short === 'true' ? handleShortParameter('courses', names) : names
-      resultNames.sort(getSortFunction(req.query.sort))
-      res.json(resultNames)
-    })
-  })
+export async function getCoursesAtSchool(req, res) {
+  const [isValid, validSchool] = await validate(req.params.school)
+  if (!isValid) {
+    errors.noSchoolFound(res, req.query.school)
+    return
+  }
+  try {
+    const names = await Exam.find({ school: validSchool }).distinct('course')
+    const resultNames = req.query.short === 'true' ? handleShortParameter('courses', names) : names
+    resultNames.sort(getSortFunction(req.query.sort))
+    res.json(resultNames)
+  } catch (error) {
+    errors.somethingWentWrong(res)
+  }
 }
 
 // Return list of all distinct exams
-export function getExams(req, res) {
-  Exam.distinct('name', (err, names) => {
-    if (err) {
-      res.status(500).send('Something went wrong.')
-      return
-    }
-
+export async function getExams(req, res) {
+  try {
+    const names = await Exam.distinct('name')
     names.sort(getSortFunction(req.query.sort))
     res.json(names)
-  })
+  } catch (error) {
+    res.status(500).send('Something went wrong.')
+  }
 }
 
 // Return list of all exams at a given school
-export function getExamsAtSchool(req, res) {
-  validate(req.params.school, null, null, (isValid, validSchool) => {
-    if (!isValid) {
-      errors.noSchoolFound(res, req.params.school)
-      return
-    }
-    Exam.find({ school: validSchool }).distinct('name', (err, names) => {
-      if (err) {
-        return errors.somethingWentWrong(res)
-      }
-      return names.sort(getSortFunction(req.query.sort))
-    })
-  })
+export async function getExamsAtSchool(req, res) {
+  const [isValid, validSchool] = await validate(req.params.school)
+  if (!isValid) {
+    errors.noSchoolFound(res, req.params.school)
+    return
+  }
+  try {
+    const names = await Exam.find({ school: validSchool }).distinct('name')
+    return res.json(names.sort(getSortFunction(req.query.sort)))
+  } catch (error) {
+    return errors.somethingWentWrong(res)
+  }
 }
 
 // Return list of all exams at a given school and course
-export function getExamsForCourseAtSchool (req, res) {
-  validate(req.params.school, req.params.course, null,
-    (isValid, validSchool, validCourse) => {
-      if (!isValid) {
-        errors.noCourseFound(res, req.params.school, req.params.course)
-        return
-      }
-      Exam.find({ school: validSchool, course: validCourse }).distinct('name',
-        (err, names) => {
-          if (err) return errors.somethingWentWrong(res)
-          names.sort(getSortFunction(req.query.sort))
-          return res.json(names)
-        })
-    })
+export async function getExamsForCourseAtSchool(req, res) {
+  const [isValid, validSchool, validCourse] = await validate(req.params.school, req.params.course)
+  if (!isValid) {
+    errors.noCourseFound(res, req.params.school, req.params.course)
+    return
+  }
+  try {
+    const names = await Exam.find({ school: validSchool, course: validCourse }).distinct('name')
+    names.sort(getSortFunction(req.query.sort))
+    return res.json(names)
+  } catch (error) {
+    return errors.somethingWentWrong(res)
+  }
 }
