@@ -18,7 +18,7 @@ mongoose.connect(process.env.DB_URL, { useNewUrlParser: true })
 
 app.use(cors({
   origin: function (origin, callback) {
-    if ([
+    if (origin && [
       'https://kramster.it',
       'https://kramsterapp.firebaseapp.com',
       'https://staging.kramster.it',
@@ -43,6 +43,7 @@ app.use('/list', list)
 
 // Start server
 const port = process.env.PORT || 8000
-app.listen(port, '127.0.0.1')
-/* eslint-disable no-console */
+app.listen(port)
+
+//@ts-ignore
 console.log(`Server is running on port ${port}`)
