@@ -20,4 +20,20 @@ const questionSchema = new mongoose.Schema({
   },
 })
 
+export interface Question {
+  question: string,
+  options: Array<string>,
+  answers: Array<number>,
+  explanation: string,
+  history: Array<{
+    _id: string,
+    givenAnswer: string,
+    wasCorrect: boolean,
+  }>,
+  stats: {
+    totalAnswers: number,
+    totalCorrect: number,
+  },
+}
+
 export default mongoose.model('Question', questionSchema)

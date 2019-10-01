@@ -6,7 +6,9 @@
       "allowJs": true,
       "esModuleInterop": true,
       "noImplicitAny": true,
-      "outDir": "dist"
+      "outDir": "dist",
+      "baseUrl": "types",
+      "typeRoots": ["types"]
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]

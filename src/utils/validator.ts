@@ -102,7 +102,7 @@ function validateSortParameter(validParams: Array<any>, sortParameter: string): 
   return [isValid, sortObject]
 }
 
-export function validate(school: string, course: string, exam: string) {
+export function validate(school: string, course?: string, exam?: string) {
   if (school && course && exam) {
     return validateExam(school, course, exam)
   }

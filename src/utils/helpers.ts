@@ -3,6 +3,8 @@
  * @author Mats Byrkjeland
  */
 
+import { Question } from '../api/questions/question.model'
+
 /**
  * Checks if a question's answers are "True" and "False"
  *
@@ -10,7 +12,7 @@
  * @returns {boolean} True if the possible answers are only "true" and "false" in either English
  * or Norwegian. Returns false if not.
  */
-const questionIsTrueFalse = (question: any): boolean => {
+const questionIsTrueFalse = (question: Question): boolean => {
   if (question.options.length !== 2) return false
   for (let k = 0; k < 2; k++) {
     const o = question.options[k].toLowerCase().replace(/\./g, '')
@@ -67,7 +69,7 @@ const shuffleArray = <T>(array: Array<T>): Array<T> => {
  *  If a question's answers are True and False, they will not be shuffled! "True" always first.
  *  Question object is of form {question: String, options: [String], answers: [Integer]}
  */
-const shuffleAnswers = (question: any): void => {
+const shuffleAnswers = (question: Question): void => {
   if (questionIsTrueFalse(question)) return
   const numCorrectAnswers = question.answers.length
   const correctAnswers = []

@@ -1,12 +1,16 @@
 import wilson from 'wilson-score'
-import { validate, validateExamsSortParameter } from './../../utils/validator'
-import helpers from './../../utils/helpers'
-import errors from './../../utils/errors'
-import Exam from './../exams/exam.model'
+import { Response, Request } from 'express'
 
-function getRandomQuestionsFromExams(exams, numberOfQuestions) {
+import { validate, validateExamsSortParameter } from '../../utils/validator'
+import helpers from '../../utils/helpers'
+import errors from '../../utils/errors'
+import { Question } from '../questions/question.model'
+
+import Exam from './exam.model'
+
+function getRandomQuestionsFromExams(exams: Array<any>, numberOfQuestions: number): Array<Question> {
   // Merge all questions from resulting exams to one array
-  let questions = []
+  let questions: Array<Question> = []
   for (let i = 0; i < exams.length; i++) {
     questions = questions.concat(exams[i].questions)
   }
@@ -30,9 +34,9 @@ function getRandomQuestionsFromExams(exams, numberOfQuestions) {
  * @param  {Number} numberOfQuestions   Maximum number of questions to fetch.
  * @return {Object[]}                   The hardest questions from given exam
  */
-function getHardestQuestionsFromExams(exams, numberOfQuestions) {
+function getHardestQuestionsFromExams(exams: Array<any>, numberOfQuestions: number): Array<Question> {
   // Merge all questions from resulting exams to one array
-  let questions = []
+  let questions: Array<Question> = []
   for (let i = 0; i < exams.length; i++) {
     questions = questions.concat(exams[i].questions)
   }
@@ -42,7 +46,7 @@ function getHardestQuestionsFromExams(exams, numberOfQuestions) {
    * @param  {Object} question A question object to calculate difficulty for
    * @return {Number}          The difficulty value
    */
-  const calculateDifficulty = (question) => {
+  const calculateDifficulty = (question: Question): number => {
     if (!question.stats || !question.stats.totalAnswers) {
       return 0
     }
@@ -63,7 +67,7 @@ function getHardestQuestionsFromExams(exams, numberOfQuestions) {
  * @param {Object} reqQuery - The query parameters from the HTTP request.
  * @param {Object} res - The Express response object.
  */
-async function handleExamsQuery(queryObject, reqQuery, res) {
+async function handleExamsQuery(queryObject: any, reqQuery: any, res: Response): Promise<void> {
   // Handle mode parameter
   if (reqQuery.mode) {
     const lower = reqQuery.mode.toLowerCase()
@@ -118,14 +122,14 @@ async function handleExamsQuery(queryObject, reqQuery, res) {
 /**
  * Returns all exams.
  */
-export function getAllExams(req, res) {
+export function getAllExams(req: Request, res: Response) {
   handleExamsQuery({}, req.query, res)
 }
 
 /**
  * Returns all exams for the given school.
  */
-export async function getExamsBySchool(req, res) {
+export async function getExamsBySchool(req: Request, res: Response) {
   const [isValid, validSchool] = await validate(req.params.school)
   if (!isValid) return errors.noSchoolFound(res, req.params.school)
   return handleExamsQuery({ school: validSchool }, req.query, res)
@@ -134,7 +138,7 @@ export async function getExamsBySchool(req, res) {
 /**
  * Returns all exams for the given school and course.
  */
-export async function getExamsByCourse(req, res) {
+export async function getExamsByCourse(req: Request, res: Response) {
   const [isValid, validSchool, validCourse] = await validate(req.params.school, req.params.course)
   if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
   return handleExamsQuery({ school: validSchool, course: validCourse }, req.query, res)
@@ -143,7 +147,7 @@ export async function getExamsByCourse(req, res) {
 /**
  * Returns specific exam for the given school and course and with given name.
  */
-export async function getExam(req, res) {
+export async function getExam(req: Request, res: Response) {
   const { school, course, exam } = req.params
   const [isValid, validSchool, validCourse, validExam] = await validate(school, course, exam)
 
