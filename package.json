@@ -4,8 +4,10 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "start": "babel-node src/server.js",
-    "build": "rm -rf dist/ && babel src/ --out-dir dist/",
+    "prebuild": "rm -rf dist/",
+    "build": "tsc",
+    "prestart": "npm run build",
+    "start": "node .",
     "deploy": "./deploy.sh",
     "deploy:staging": "./deploy-staging.sh",
     "lint": "eslint src",
@@ -27,7 +29,13 @@
     "@babel/core": "^7.5.5",
     "@babel/node": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
+    "@types/cors": "^2.8.6",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^4.17.1",
+    "@types/mongoose": "^5.5.18",
     "eslint": "^6.2.2",
-    "nodemon": "^1.19.1"
+    "nodemon": "^1.19.1",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.3"
   }
 }
