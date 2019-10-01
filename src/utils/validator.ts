@@ -1,9 +1,9 @@
-import Exam from './../api/exams/exam.model'
+import Exam from '../api/exams/exam.model'
 import helpers from './helpers'
 
-const getCourseCode = courseName => courseName.split(' ')[0].toUpperCase()
+const getCourseCode = (courseName: string) => courseName.split(' ')[0].toUpperCase()
 
-async function validateSchool(school) {
+async function validateSchool(school: string): Promise<[false] | [true, string]> {
   const lower = school.toLowerCase()
   try {
     const schoolNames = await Exam.distinct('school')
@@ -26,10 +26,10 @@ async function validateSchool(school) {
   }
 }
 
-async function validateCourse(school, course) {
+async function validateCourse(school: string, course: string): Promise<[false] | [true, string, string]> {
   const [isValid, validSchool] = await validateSchool(school)
 
-  if (!isValid) return false
+  if (!isValid) return [false]
 
   const lower = course.toLowerCase()
 
@@ -57,7 +57,7 @@ async function validateCourse(school, course) {
   }
 }
 
-async function validateExam(school, course, exam) {
+async function validateExam(school: string, course: string, exam: string): Promise<[false] | [true, string, string, string]> {
   const [isValid, validSchool, validCourse] = await validateCourse(school, course)
 
   if (!isValid)  return [false]
@@ -77,12 +77,12 @@ async function validateExam(school, course, exam) {
   }
 }
 
-function validateSortParameter(validParams, sortParameter) {
+function validateSortParameter(validParams: Array<any>, sortParameter: string): [boolean, object] {
   if (!sortParameter) {
     return [true, { _id: 1 }]
   }
 
-  const sortObject = {}
+  const sortObject: {[propName: string]: number} = {}
   let isValid = true
 
   const sortItems = sortParameter.split(',')
@@ -102,7 +102,7 @@ function validateSortParameter(validParams, sortParameter) {
   return [isValid, sortObject]
 }
 
-export function validate(school, course, exam) {
+export function validate(school: string, course: string, exam: string) {
   if (school && course && exam) {
     return validateExam(school, course, exam)
   }
@@ -114,22 +114,27 @@ export function validate(school, course, exam) {
   }
 }
 
-export function validateExamsSortParameter(sortParameter) {
+export function validateExamsSortParameter(sortParameter: string) {
   const valids = ['created', 'school', 'course', 'name']
   return validateSortParameter(valids, sortParameter)
 }
 
-export function validateReportsSortParameter(sortParameter) {
+export function validateReportsSortParameter(sortParameter: string) {
   const val = ['created', 'school', 'course', 'name', 'score', 'numQuestions', 'percentage', 'grade']
   return validateSortParameter(val, sortParameter)
 }
 
-export function isValidDate(dateParameter) {
+export function isValidDate(dateParameter: string): boolean {
   return dateParameter && !isNaN(Date.parse(dateParameter))
 }
 
-export function validateRangeBasedParameter(paramName, param) {
-  const objectToReturn = {}
+interface Range {
+  $gt?: string,
+  $lt?: string,
+}
+
+export function validateRangeBasedParameter(paramName: string, param: string): [false] | [true, string] | [true, Range] {
+  const objectToReturn: Range = {}
 
   // Check for multiple values (an interval)
   const params = param.split(',')
@@ -140,7 +145,7 @@ export function validateRangeBasedParameter(paramName, param) {
     let paramValue = (operator === '=') ? p : p.substring(1)
 
     const isInvalidGrade = paramName === 'grade' && !helpers.isGrade(paramValue)
-    const isInvalidNumber = paramName !== 'grade' && isNaN(paramValue)
+    const isInvalidNumber = paramName !== 'grade' && (typeof paramValue !== 'number' || isNaN(paramValue))
 
     if (isInvalidGrade || isInvalidNumber) {
       return [false]

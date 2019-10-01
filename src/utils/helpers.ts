@@ -10,7 +10,7 @@
  * @returns {boolean} True if the possible answers are only "true" and "false" in either English
  * or Norwegian. Returns false if not.
  */
-const questionIsTrueFalse = (question) => {
+const questionIsTrueFalse = (question: any): boolean => {
   if (question.options.length !== 2) return false
   for (let k = 0; k < 2; k++) {
     const o = question.options[k].toLowerCase().replace(/\./g, '')
@@ -31,7 +31,7 @@ const questionIsTrueFalse = (question) => {
  *
  * @returns {boolean} - True if all of the argument exams have only True/False questions.
  */
-const examsAreTrueFalse = (exams) => {
+const examsAreTrueFalse = (exams: Array<any>): boolean => {
   for (let i = 0; i < exams.length; i++) {
     if (exams[i].mode && exams[i].mode.toLowerCase() !== 'tf') return false
 
@@ -51,7 +51,7 @@ const examsAreTrueFalse = (exams) => {
  * @param {Object[]} array - The array to shuffle.
  * @returns {Object[]} - The shuffled array.
  */
-const shuffleArray = (array) => {
+const shuffleArray = <T>(array: Array<T>): Array<T> => {
   const size = array.length
   for (let i = 0; i < size; i++) {
     const j = Math.round(i + ((size - 1 - i) * Math.random()))
@@ -67,7 +67,7 @@ const shuffleArray = (array) => {
  *  If a question's answers are True and False, they will not be shuffled! "True" always first.
  *  Question object is of form {question: String, options: [String], answers: [Integer]}
  */
-const shuffleAnswers = (question) => {
+const shuffleAnswers = (question: any): void => {
   if (questionIsTrueFalse(question)) return
   const numCorrectAnswers = question.answers.length
   const correctAnswers = []
@@ -91,7 +91,7 @@ const shuffleAnswers = (question) => {
  * @param {Object[]} exams - An array of Exam objects
  * @param {string} param - Comma-separated string of either "q", "a", "mc" or "tf"
  */
-const handleShuffle = (exams, param) => {
+const handleShuffle = (exams: Array<any>, param: string): void => {
   if (param === 'none') return
 
   const undef = typeof param === 'undefined'
@@ -131,13 +131,13 @@ const handleShuffle = (exams, param) => {
   }
 }
 
-const isGrade = p => typeof p === 'string' && ['A', 'B', 'C', 'D', 'E', 'F'].indexOf(p.toUpperCase()) > -1
+const isGrade = (p: any) => typeof p === 'string' && ['A', 'B', 'C', 'D', 'E', 'F'].indexOf(p.toUpperCase()) > -1
 
-const findSubstringEnclosedInParenthesis = s => /\(([^)]+)\)/.exec(s)
+const findSubstringEnclosedInParenthesis = (s: string) => /\(([^)]+)\)/.exec(s)
 
 // Example argument: "Norges Teknisk-Naturvitenskaplige Universitet (NTNU)"
 // Example return value: "NTNU"
-const getSchoolAbbreviationFromFullName = (schoolName) => {
+const getSchoolAbbreviationFromFullName = (schoolName: string) => {
   // Find abbreviation enclosed in parenthesis
   const abb = findSubstringEnclosedInParenthesis(schoolName)
   if (abb) return abb[1]
@@ -148,19 +148,19 @@ const getSchoolAbbreviationFromFullName = (schoolName) => {
 
 // Example argument: "TDT4136 Introduction to Artificial Intelligence"
 // Example return value: "TDT4136"
-const getCourseCodeFromFullName = (courseName) => {
+const getCourseCodeFromFullName = (courseName: string) => {
   const splitName = courseName.split(' ')
   if (splitName.length === 1) return courseName.substring(0, 7)
   return courseName.split(' ')[0].toUpperCase()
 }
 
-const ascSort = (a, b) => {
+const ascSort = (a: string | number, b: string | number): number => {
   if (a < b) return -1
   if (a > b) return 1
   return 0
 }
 
-const descSort = (a, b) => {
+const descSort = (a: string | number, b: string | number): number => {
   if (a < b) return 1
   if (a > b) return -1
   return 0
