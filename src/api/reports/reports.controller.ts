@@ -147,7 +147,7 @@ export async function addReport(req: Request, res: Response): Promise<void> {
     res.status(201).json(post)
 
     // Update stats based on this report
-    statsCtrl.updateStats(report)
+    statsCtrl.updateStats(rawReport)
   })
 
   // Update each question with respective answer history
