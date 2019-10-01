@@ -1,10 +1,11 @@
-import { validate } from './../../utils/validator'
-import errors from './../../utils/errors'
-import helpers from './../../utils/helpers'
-import Exam from './../exams/exam.model'
+import { validate } from '../../utils/validator'
+import errors from '../../utils/errors'
+import helpers from '../../utils/helpers'
+import Exam from '../exams/exam.model'
+import { Request, Response } from 'express'
 
 // type is either "schools" or "courses", names is the list of full names
-const handleShortParameter = (type, names) => {
+const handleShortParameter = (type: 'schools' | 'courses', names: Array<string>): Array<string> => {
   if (type !== 'schools' && type !== 'courses') return names
 
   const shorts = []
@@ -25,13 +26,13 @@ const handleShortParameter = (type, names) => {
  * @param {string} sortParam
  * @return {function} sortFunction
  */
-const getSortFunction = (sortParam) => {
+const getSortFunction = (sortParam: string) => {
   if (sortParam === '-alphabetically') return helpers.descSort
   return helpers.ascSort
 }
 
 // Return list of all distinct schools
-export function getSchools(req, res) {
+export function getSchools(req: Request, res: Response) {
   Exam.distinct('school', (err, names) => {
     if (err) {
       res.status(500).send('Something went wrong.')
@@ -45,7 +46,7 @@ export function getSchools(req, res) {
 }
 
 // Return list of all distinct courses
-export function getCourses(req, res) {
+export function getCourses(req: Request, res: Response) {
   Exam.distinct('course', (err, names) => {
     if (err) {
       res.status(500).send('Something went wrong.')
@@ -59,7 +60,7 @@ export function getCourses(req, res) {
 }
 
 // Return list of all courses at a given school
-export async function getCoursesAtSchool(req, res) {
+export async function getCoursesAtSchool(req: Request, res: Response) {
   const [isValid, validSchool] = await validate(req.params.school)
   if (!isValid) {
     errors.noSchoolFound(res, req.query.school)
@@ -76,7 +77,7 @@ export async function getCoursesAtSchool(req, res) {
 }
 
 // Return list of all distinct exams
-export async function getExams(req, res) {
+export async function getExams(req: Request, res: Response) {
   try {
     const names = await Exam.distinct('name')
     names.sort(getSortFunction(req.query.sort))
@@ -87,7 +88,7 @@ export async function getExams(req, res) {
 }
 
 // Return list of all exams at a given school
-export async function getExamsAtSchool(req, res) {
+export async function getExamsAtSchool(req: Request, res: Response) {
   const [isValid, validSchool] = await validate(req.params.school)
   if (!isValid) {
     errors.noSchoolFound(res, req.params.school)
@@ -102,7 +103,7 @@ export async function getExamsAtSchool(req, res) {
 }
 
 // Return list of all exams at a given school and course
-export async function getExamsForCourseAtSchool(req, res) {
+export async function getExamsForCourseAtSchool(req: Request, res: Response) {
   const [isValid, validSchool, validCourse] = await validate(req.params.school, req.params.course)
   if (!isValid) {
     errors.noCourseFound(res, req.params.school, req.params.course)
