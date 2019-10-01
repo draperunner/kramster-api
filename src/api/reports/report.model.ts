@@ -1,5 +1,23 @@
 import mongoose from 'mongoose'
 
+export interface IReport {
+  exam: {
+    school: string,
+    course: string,
+    name: string,
+  },
+  createdAt: string,
+  history: Array<{
+    questionId: string,
+    givenAnswer: string,
+    wasCorrect: boolean,
+  }>,
+  score: number,
+  numQuestions: number,
+  percentage: number,
+  grade: string,
+}
+
 // Schema
 const reportSchema = new mongoose.Schema({
   exam: {

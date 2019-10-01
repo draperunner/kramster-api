@@ -1,11 +1,12 @@
 import mongoose from 'mongoose'
-import { validate, validateRangeBasedParameter, validateReportsSortParameter, isValidDate } from './../../utils/validator'
-import errors from './../../utils/errors'
+import { validate, validateRangeBasedParameter, validateReportsSortParameter, isValidDate } from '../../utils/validator'
+import errors from '../../utils/errors'
 import Question from '../questions/question.model'
-import Report from './report.model'
-import * as statsCtrl from './../stats/stats.controller'
+import Report, { IReport } from './report.model'
+import * as statsCtrl from '../stats/stats.controller'
+import { Request, Response } from 'express'
 
-async function handleRangeBasedParameter(res, queryObject, paramName, rawParam) {
+async function handleRangeBasedParameter(res: Response, queryObject: any, paramName: string, rawParam: string): Promise<boolean | void> {
   if (typeof rawParam === 'undefined') return true
   try {
     const [isValid, validParamObject] = await validateRangeBasedParameter(paramName, rawParam)
@@ -17,7 +18,7 @@ async function handleRangeBasedParameter(res, queryObject, paramName, rawParam) 
   }
 }
 
-const handleReportsQuery = (queryObject, reqQuery, res) => {
+const handleReportsQuery = (queryObject: any, reqQuery: any, res: Response): void => {
   // Handle mode parameter
   if (reqQuery.mode) {
     const lower = reqQuery.mode.toLowerCase()
@@ -39,7 +40,7 @@ const handleReportsQuery = (queryObject, reqQuery, res) => {
   /**
    * @param {string} param - Either 'after' or 'before'.
    */
-  const handleDate = (param) => {
+  const handleDate = (param: 'after' | 'before'): boolean => {
     if (isValidDate(reqQuery[param])) {
       if (!queryObject.createdAt) queryObject.createdAt = {}
       queryObject.createdAt[param === 'after' ? '$gt' : '$lt'] = reqQuery[param]
@@ -59,9 +60,8 @@ const handleReportsQuery = (queryObject, reqQuery, res) => {
   let query = Report.find(queryObject)
 
   // Sort
-  validateReportsSortParameter(reqQuery.sort, (isValid, sortObject) => {
-    if (isValid) query = query.sort(sortObject)
-  })
+  const [isValid, sortObject] = validateReportsSortParameter(reqQuery.sort)
+  if (isValid) query = query.sort(sortObject)
 
   // Limit reports
   if (reqQuery.limit && !isNaN(reqQuery.limit) && Number(reqQuery.limit) > 0) {
@@ -80,19 +80,19 @@ const handleReportsQuery = (queryObject, reqQuery, res) => {
 }
 
 // Return all reports
-export function getAllReports(req, res) {
+export function getAllReports(req: Request, res: Response) {
   handleReportsQuery({}, req.query, res)
 }
 
 // Return reports for a given school
-export async function getReportsForSchool(req, res) {
+export async function getReportsForSchool(req: Request, res: Response) {
   const [isValid, validSchool] = await validate(req.params.school)
   if (!isValid) return errors.noSchoolFound(res, req.params.school)
   return handleReportsQuery({ 'exam.school': validSchool }, req.query, res)
 }
 
 // Return reports for a given course
-export async function getReportsForCourse(req, res) {
+export async function getReportsForCourse(req: Request, res: Response) {
   const [isValid, validSchool, validCourse] = await validate(req.params.school, req.params.course)
   if (!isValid) return errors.noCourseFound(res, req.params.school, req.params.course)
   return handleReportsQuery(
@@ -103,7 +103,7 @@ export async function getReportsForCourse(req, res) {
 }
 
 // Return reports for a given exam
-export async function getReportsForExam(req, res) {
+export async function getReportsForExam(req: Request, res: Response) {
   const [isValid, validSchool, validCourse, validExam] = await validate(req.params.school, req.params.course, req.params.exam)
   if (!isValid) {
     return errors.noExamFound(res, req.params.school, req.params.course, req.params.exam)
@@ -118,25 +118,27 @@ export async function getReportsForExam(req, res) {
 }
 
 // Add a new report
-export async function addReport(req, res) {
+export async function addReport(req: Request, res: Response): Promise<void> {
   const [isValid, validSchool, validCourse] = await validate(req.body.exam.school, req.body.exam.course)
   if (!isValid) {
     return errors.noExamFound(res, req.params.school, req.params.course, req.params.exam)
   }
 
-  const report = new Report({
+  const rawReport: IReport = {
     exam: {
       school: validSchool,
       course: validCourse,
       name: req.body.exam.name,
     },
     createdAt: req.body.createdAt,
-    history: req.body.history.map(q => ({ ...q, questionId: mongoose.Types.ObjectId(q.questionId) })),
+    history: req.body.history.map((q: any) => ({ ...q, questionId: mongoose.Types.ObjectId(q.questionId) })),
     score: req.body.score,
     numQuestions: req.body.numQuestions,
     percentage: req.body.percentage,
     grade: req.body.grade,
-  })
+  }
+
+  const report = new Report(rawReport)
 
   report.save((err, post) => {
     if (err) {
@@ -149,7 +151,7 @@ export async function addReport(req, res) {
   })
 
   // Update each question with respective answer history
-  report.history.forEach((question) => {
+  rawReport.history.forEach((question) => {
     const { givenAnswer, wasCorrect } = question
     Question.findOneAndUpdate(
       { _id: question.questionId },
@@ -158,6 +160,4 @@ export async function addReport(req, res) {
         $inc: { 'stats.totalAnswers': 1, 'stats.totalCorrect': wasCorrect ? 1 : 0 },
       }).exec()
   })
-
-  return null
 }
