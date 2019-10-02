@@ -18,6 +18,9 @@ mongoose.connect(process.env.DB_URL, { useNewUrlParser: true })
 
 app.use(cors({
   origin: function (origin, callback) {
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true)
+    }
     if (origin && [
       'https://kramster.it',
       'https://kramsterapp.firebaseapp.com',

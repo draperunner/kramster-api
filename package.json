@@ -10,6 +10,7 @@
     "start": "node .",
     "deploy": "./deploy.sh",
     "deploy:staging": "./deploy-staging.sh",
+    "populate-db": "./populate-db.sh",
     "lint": "eslint src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
