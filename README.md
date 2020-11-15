@@ -1,4 +1,8 @@
-# Kramster API
+# Kramster API – LEGACY
+
+⚠️ This is the old backend service for [Kramster](https://github.com/draperunner/kramster). Kramster is now using Firebase and Firestore all the way.
+
+---
 
 The server for kramster.it used to be part of the [Kramster](https://github.com/draperunner/kramster) repository, but now the frontend and backend have been split apart!
 
